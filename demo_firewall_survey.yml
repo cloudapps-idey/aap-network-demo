@@ -3,6 +3,9 @@
   hosts: all
   gather_facts: false
 
+  vars:
+    rule_action: "deny"
+
   tasks:
     - name: Display Survey Change Control Metadata
       ansible.builtin.debug:
@@ -12,7 +15,7 @@
           - "=========================================================="
           - " Ticket ID       : {{ ticket_id }}"
           - " Rule Name       : {{ rule_name }}"
-          - " Action          : {{ action | upper }}"
+          - " Action          : {{ rule_action | upper }}"
           - " Protocol        : {{ protocol | upper }}"
           - " Source          : {{ src_ip }}"
           - " Destination     : {{ dst_ip }}:{{ dst_port }}"
@@ -25,7 +28,7 @@
           - "set security policies from Trust to DMZ rule {{ rule_name }} match source {{ src_ip }}"
           - "set security policies from Trust to DMZ rule {{ rule_name }} match destination {{ dst_ip }}"
           - "set security policies from Trust to DMZ rule {{ rule_name }} match application {{ protocol }}-{{ dst_port }}"
-          - "set security policies from Trust to DMZ rule {{ rule_name }} then {{ action }}"
+          - "set security policies from Trust to DMZ rule {{ rule_name }} then {{ rule_action }}"
 
     - name: Verify Compliance Policy
       ansible.builtin.debug:

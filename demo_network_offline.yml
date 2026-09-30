@@ -16,6 +16,18 @@
         fail_msg: "VLAN ID {{ vlan_id }} is outside valid IEEE 802.1Q range (2-4094)."
         success_msg: "VLAN ID {{ vlan_id }} passed range validation check."
 
+    # ADD THE COPY TASK HERE TO TRIGGER "SHOW CHANGES" DIFF MODE
+    - name: Render proposed network configuration file
+      ansible.builtin.copy:
+        dest: "/tmp/cisco_switch_config.txt"
+        content: |
+          ! Current Switch Configuration
+          hostname CORE-SW-01
+          vlan {{ vlan_id }}
+            name {{ vlan_name }}
+            state active
+          exit
+
     - name: Render Cisco IOS CLI configuration from template
       ansible.builtin.debug:
         msg:

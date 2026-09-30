@@ -14,7 +14,7 @@
     - name: Validate Firewall Rule Policy Input
       ansible.builtin.assert:
         that:
-          - rule_action in ['allow', 'deny', 'drop']
+          - (rule_action | lower) in ['allow', 'deny', 'drop']
           - app_port | int > 0
         fail_msg: "Invalid firewall policy parameters submitted."
         success_msg: "Firewall rule policy syntax validated successfully."
@@ -29,7 +29,7 @@
           - "destination-zone : DMZ"
           - "destination-addr : {{ dst_ip }}"
           - "destination-port : TCP/{{ app_port }}"
-          - "action           : {{ rule_action }}"
+          - "action           : {{ rule_action | lower }}"
           - "log-setting      : default-log-profile"
 
     - name: Simulate Dry-Run Policy Compliance Check

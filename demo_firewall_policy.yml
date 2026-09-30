@@ -1,0 +1,37 @@
+---
+- name: Security & Firewall Rule Provisioning Demo
+  hosts: all
+  gather_facts: false
+
+  vars:
+    src_ip: "10.100.10.0/24"
+    dst_ip: "192.168.1.50/32"
+    app_port: "443"
+    rule_name: "ALLOW_APP_TRAFFIC"
+    action: "allow"
+
+  tasks:
+    - name: Validate Firewall Rule Policy Input
+      ansible.builtin.assert:
+        that:
+          - action in ['allow', 'deny', 'drop']
+          - app_port | int > 0
+        fail_msg: "Invalid firewall policy parameters submitted."
+        success_msg: "Firewall rule policy syntax validated successfully."
+
+    - name: Render Palo Alto / Fortinet CLI Configuration
+      ansible.builtin.debug:
+        msg:
+          - "--- [ GENERATED FIREWALL POLICY RULE ] ---"
+          - "rule-name        : {{ rule_name }}"
+          - "source-zone      : Trust"
+          - "source-address   : {{ src_ip }}"
+          - "destination-zone : DMZ"
+          - "destination-addr : {{ dst_ip }}"
+          - "destination-port : TCP/{{ app_port }}"
+          - "action           : {{ action }}"
+          - "log-setting      : default-log-profile"
+
+    - name: Simulate Dry-Run Policy Compliance Check
+      ansible.builtin.debug:
+        msg: "COMPLIANCE CHECK: Proposed rule '{{ rule_name }}' matches Security Standard Profile v2.4."

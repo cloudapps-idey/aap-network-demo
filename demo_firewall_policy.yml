@@ -7,14 +7,14 @@
     src_ip: "10.100.10.0/24"
     dst_ip: "192.168.1.50/32"
     app_port: "443"
-    rule_name: "ALLOW_APP_TRAFFIC"
-    action: "allow"
+    rule_name: "ALLOW_WEB_TO_DB"
+    rule_action: "deny"
 
   tasks:
     - name: Validate Firewall Rule Policy Input
       ansible.builtin.assert:
         that:
-          - action in ['allow', 'deny', 'drop']
+          - rule_action in ['allow', 'deny', 'drop']
           - app_port | int > 0
         fail_msg: "Invalid firewall policy parameters submitted."
         success_msg: "Firewall rule policy syntax validated successfully."

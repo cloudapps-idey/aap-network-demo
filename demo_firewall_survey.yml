@@ -4,9 +4,29 @@
   gather_facts: false
 
   vars:
-    rule_action: "deny"
+    ticket_id: "{{ ticket_id | default('CHG-00123') }}"
+    rule_name: "{{ rule_name | default('ALLOW_WEB_TO_DB') }}"
+    rule_action: "{{ rule_action | default('deny') }}"
+    protocol: "{{ protocol | default('tcp') }}"
+    src_ip: "{{ src_ip | default('10.100.10.0/24') }}"
+    dst_ip: "{{ dst_ip | default('192.168.1.50/32') }}"
+    dst_port: "{{ dst_port | default(443) }}"
 
   tasks:
+    - name: Normalize Input Variables
+      ansible.builtin.set_fact:
+        clean_action: "{{ (rule_action if rule_action is string else (rule_action | first)) | lower }}"
+        clean_protocol: "{{ (protocol if protocol is string else (protocol | first)) | lower }}"
+
+    - name: Validate Change Request Parameters
+      ansible.builtin.assert:
+        that:
+          - clean_action in ['allow', 'deny', 'drop']
+          - clean_protocol in ['tcp', 'udp', 'icmp']
+          - (dst_port | int) > 0
+        fail_msg: "Invalid change request inputs provided in survey."
+        success_msg: "Survey parameters validated against security policy."
+
     - name: Display Survey Change Control Metadata
       ansible.builtin.debug:
         msg:
@@ -15,8 +35,8 @@
           - "=========================================================="
           - " Ticket ID       : {{ ticket_id }}"
           - " Rule Name       : {{ rule_name }}"
-          - " Action          : {{ rule_action | upper }}"
-          - " Protocol        : {{ protocol | upper }}"
+          - " Action          : {{ clean_action | upper }}"
+          - " Protocol        : {{ clean_protocol | upper }}"
           - " Source          : {{ src_ip }}"
           - " Destination     : {{ dst_ip }}:{{ dst_port }}"
           - "=========================================================="
@@ -27,8 +47,8 @@
           - "--- [ GENERATED PALO ALTO / FORTINET CLI SYNTAX ] ---"
           - "set security policies from Trust to DMZ rule {{ rule_name }} match source {{ src_ip }}"
           - "set security policies from Trust to DMZ rule {{ rule_name }} match destination {{ dst_ip }}"
-          - "set security policies from Trust to DMZ rule {{ rule_name }} match application {{ protocol }}-{{ dst_port }}"
-          - "set security policies from Trust to DMZ rule {{ rule_name }} then {{ rule_action }}"
+          - "set security policies from Trust to DMZ rule {{ rule_name }} match application {{ clean_protocol }}-{{ dst_port }}"
+          - "set security policies from Trust to DMZ rule {{ rule_name }} then {{ clean_action }}"
 
     - name: Verify Compliance Policy
       ansible.builtin.debug:

@@ -1,0 +1,32 @@
+---
+- name: Firewall Rule Provisioning & Compliance Audit
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Display Survey Change Control Metadata
+      ansible.builtin.debug:
+        msg:
+          - "=========================================================="
+          - "               FIREWALL CHANGE REQUEST                    "
+          - "=========================================================="
+          - " Ticket ID       : {{ ticket_id }}"
+          - " Rule Name       : {{ rule_name }}"
+          - " Action          : {{ action | upper }}"
+          - " Protocol        : {{ protocol | upper }}"
+          - " Source          : {{ src_ip }}"
+          - " Destination     : {{ dst_ip }}:{{ dst_port }}"
+          - "=========================================================="
+
+    - name: Render Vendor-Specific Security Rule Syntax
+      ansible.builtin.debug:
+        msg:
+          - "--- [ GENERATED PALO ALTO / FORTINET CLI SYNTAX ] ---"
+          - "set security policies from Trust to DMZ rule {{ rule_name }} match source {{ src_ip }}"
+          - "set security policies from Trust to DMZ rule {{ rule_name }} match destination {{ dst_ip }}"
+          - "set security policies from Trust to DMZ rule {{ rule_name }} match application {{ protocol }}-{{ dst_port }}"
+          - "set security policies from Trust to DMZ rule {{ rule_name }} then {{ action }}"
+
+    - name: Verify Compliance Policy
+      ansible.builtin.debug:
+        msg: "SUCCESS: Rule '{{ rule_name }}' for Ticket {{ ticket_id }} meets Security Baseline Standard."

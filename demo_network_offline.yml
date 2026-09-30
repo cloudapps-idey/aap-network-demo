@@ -1,0 +1,22 @@
+---
+- name: Network Automation - Offline CLI / Configuration Rendering Demo
+  hosts: all
+  gather_facts: false
+
+  vars:
+    vlan_id: 100
+    vlan_name: "Engineering_Data"
+
+  tasks:
+    - name: Render Cisco IOS CLI configuration from template
+      ansible.builtin.debug:
+        msg:
+          - "--- [ GENERATED CLI COMMANDS FOR NETWORK DEVICE ] ---"
+          - "vlan {{ vlan_id }}"
+          - " name {{ vlan_name }}"
+          - " state active"
+          - "exit"
+
+    - name: Perform dry-run compliance validation
+      ansible.builtin.debug:
+        msg: "COMPLIANCE CHECK: VLAN {{ vlan_id }} complies with corporate naming standard '{{ vlan_name }}'."

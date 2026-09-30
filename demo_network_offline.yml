@@ -8,6 +8,11 @@
     vlan_name: "Engineering_Data"
 
   tasks:
+    - name: Ensure fresh state for dry-run demo
+      ansible.builtin.file:
+        path: "/tmp/cisco_switch_config.txt"
+        state: absent
+        
     - name: Validate VLAN ID input guardrails
       ansible.builtin.assert:
         that:

@@ -8,6 +8,14 @@
     vlan_name: "Engineering_Data"
 
   tasks:
+    - name: Validate VLAN ID input guardrails
+      ansible.builtin.assert:
+        that:
+          - (vlan_id | int) >= 2
+          - (vlan_id | int) <= 4094
+        fail_msg: "VLAN ID {{ vlan_id }} is outside valid IEEE 802.1Q range (2-4094)."
+        success_msg: "VLAN ID {{ vlan_id }} passed range validation check."
+
     - name: Render Cisco IOS CLI configuration from template
       ansible.builtin.debug:
         msg:

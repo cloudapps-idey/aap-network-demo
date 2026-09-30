@@ -29,7 +29,7 @@
           - "destination-zone : DMZ"
           - "destination-addr : {{ dst_ip }}"
           - "destination-port : TCP/{{ app_port }}"
-          - "action           : {{ action }}"
+          - "action           : {{ rule_action }}"
           - "log-setting      : default-log-profile"
 
     - name: Simulate Dry-Run Policy Compliance Check
